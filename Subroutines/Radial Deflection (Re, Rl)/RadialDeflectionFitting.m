@@ -97,7 +97,7 @@ subplot(2,2,[1 3])
 scatter3( Loaded(1).Load, Loaded(1).Radius, Loaded(1).Pressure, [], Loaded(1).Pressure, '.', ...
     'MarkerEdgeAlpha', 0.3, 'MarkerFaceAlpha', 0.3 ); hold on;
 
-surf( Load, Tire.Radius.Loaded( Load, Pressure ), Pressure );
+% surf( Load, Tire.Radius.Loaded( Load, Pressure ), Pressure );
 
 xlabel( 'Normal Load, $F_{z}$ [$N$]' );
 ylabel( 'Loaded Radius, $r_{l}$ [$mm$]' );

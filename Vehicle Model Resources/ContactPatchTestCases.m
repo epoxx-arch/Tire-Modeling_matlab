@@ -1,4 +1,4 @@
-% clc; clear; close all
+clc; clear; close all
 format short g
 
 %%
@@ -9,24 +9,31 @@ addpath( genpath( fileparts( which( 'ContactPatchLoads.m' ) ) ) );
 %load('Hoosier_R25B_18x75-10x7.mat');
 
 %%% Old Tire: Hoosier_R25B_16x75-10x7.mat
-% load('Hoosier_R25B_16x75-10x7.mat');
+load('Hoosier_R25B_16x75-10x7.mat');
+% load('Hoosier_LCO_16x75-10x7.mat');
+
 %load('TESTING-1-19-2025-R25B-Default.mat')
 %load('Tire.mat');
 
 % %%% New Tires as of 2024: Hoosier_43075_16x75-10_R20-8.mat
 % load('Hoosier_43075_16x75-10_R20-8.mat')
- load('Hoosier_R20_16(18)x75(60)-10x8(7).mat')
+% load('Hoosier_R20_16(18)x75(60)-10x8(7).mat')
+% load('Hoosier_R20_16(18)x75(60)-10x7.mat')
+% load('Hoosier_R25B_16(18)x75-10x7.mat')
+% load('Hoosier_R25B_16(18)x60-10x7.mat')
+% load('Hoosier_LCO_16(18)x75(75)-10x7.mat');
+
 
 %%% Nominal Test Case Conditions
 Pressure    = 70;
 Inclination = 1;
-%Velocity    = 10;
+% Velocity    = 10;
 Velocity    = 0;
 Idx         = 1;
 Model       = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
 
 %%% Slip-Load Plots 
-SlipRatio = linspace(- 1, 1,51);
+SlipRatio = linspace(-1, 1,51);
 SlipAngle = linspace(-20,20,51);
 
 NormalLoad  = 0:100:2000;
@@ -81,7 +88,7 @@ title( 'Rolling Resistance' )
 
 % subplot(3,2,6)
 % Fz = linspace(0,2000,51)';
-% plot(Fy/Fz, SlipAngle)
+% plot(Fy./Fz, SlipAngle)
   
 %%% Friction Ellipse Plotting
 SlipRatio = linspace(-1, 1,51);
@@ -119,7 +126,7 @@ grid on
 
 %%% Inclination Sensitivity
 Velocity = 15;
-Inclination = -3:0.05:3;
+Inclination = linspace(-12,12,100);
 NormalLoad = 700; %Newtons
 
 SlipRatio = linspace(- 1, 1,51);
@@ -135,12 +142,15 @@ SlipAngle = linspace(-20,20,51);
 
 figure
 hold on;
+grid on
 plot( Inclination(1,:), max(abs(Fx),[],1)./max(abs(Fx),[],'all') );
 plot( Inclination(1,:), max(abs(Fy),[],1)./max(abs(Fy),[],'all') )
 xlabel( 'Inclination, $\gamma$ [$deg$]','Interpreter','latex' )
 ylabel( 'Normalized Grip' )
 title( 'Inclination Sensitivity')
 legend( '$F_{x}$', '$F_{y}$','Interpreter','latex' )
+ylim([0.7 1.1])
+xlim([-5,5])
 
 figure
 hold on;
@@ -148,7 +158,7 @@ plot( Inclination(1,:), max(abs(Fx),[],1)./NormalLoad );
 plot( Inclination(1,:), max(abs(Fy),[],1)./NormalLoad )
 xlabel( 'Inclination, $\gamma$ [$deg$]','Interpreter','latex' )
 ylabel( 'Normalized Grip' )
-title( 'Inclination Sensitivity')
+title( 'Inclination Sensitivity 2 ')
 legend( '$F_{x}$', '$F_{y}$','Interpreter','latex' )
 
 figure
@@ -161,77 +171,135 @@ ylabel( 'Slip Angle (deg)' ,'Interpreter','latex' )
 zlabel( 'Lateral Force Friction Coefficient','Interpreter','latex' )
 
 
+% More Inclination Stuff
+Velocity = 15;
+Inclination = linspace(-12,12,51);
+NormalLoadMat = 100:300:1600;
+SlipRatio = 0.1;
+SlipAngle = linspace(0,-20,51);
 
-% 
-% %%% Coefficient of Friction
-% Pressure    = 70;
-% Inclination = 1;
-% % Velocity    = 10;
-% Velocity = 0;
-% Idx         = 1;
-% Model       = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
-% 
-% SlipRatio = linspace(0, 1,51);
-% SlipAngle = linspace(0,20,51);
-% NormalLoad  = 0:100:2000;
-% 
-% [~         , SlipRatio] = meshgrid( NormalLoad, SlipRatio );
-% [NormalLoad, SlipAngle] = meshgrid( NormalLoad, SlipAngle );
-% 
-% [Fx, Fy, ~,~,~] = ContactPatchLoads( Tire, ...
-%     SlipAngle, SlipRatio, ...
-%     NormalLoad, Pressure, Inclination, Velocity, ...
-%     Idx, Model );
-% 
-% muY = -Fy ./ NormalLoad;
-% 
-% figure 
-% hold on
-% grid()
-% surf(SlipAngle, NormalLoad, muY);
-% view(3)
-% xlabel("Slip Angle [deg]")
-% ylabel("Normal Load [N]")
-% zlabel("\mu_y [-]")
-% title("Coefficient of Friction in Y")
-% 
-% Mat.NormalLoad = NormalLoad(find(NormalLoad == 700));
-% Mat.SlipAngle = SlipAngle(find(NormalLoad == 700));
-% Mat.muY = muY(find(NormalLoad == 700));
-% 
-% figure
-% hold on
-% grid()
-% plot(Mat.SlipAngle, Mat.muY)
-% xlabel("Slip Angle [deg]")
-% ylabel("\mu_y [-]")
-% title("Coefficient of Friction in Y at 700 N")
-% 
-% 
-% muX = Fx ./ NormalLoad;
-% 
-% figure 
-% hold on
-% grid()
-% surf(SlipRatio, NormalLoad, muX);
-% view(3)
-% xlabel("Slip Ratio ([0-1]",'Interpreter','latex');
-% ylabel("Normal Load $(F_z)$ [N]",'Interpreter','latex');
-% zlabel("Coefficient of Friction $(\mu_x)$ [-]",'Interpreter','latex');
-% title("Coefficient of Friction in X",'Interpreter','latex');
-% 
-% Mat.NormalLoad = NormalLoad(find(NormalLoad == 700));
-% Mat.SlipRatio = SlipRatio(find(NormalLoad == 700));
-% Mat.muX = muX(find(NormalLoad == 700));
-% 
-% figure
-% hold on
-% grid()
-% plot(Mat.SlipRatio, Mat.muX)
-% xlabel("Slip Ratio [0-1]")
-% ylabel("\mu_x [-]")
-% title("Coefficient of Friction in X at 700 N")
-% 
+figure;
+
+
+for i = 1:length(NormalLoadMat)
+
+    NormalLoad = NormalLoadMat(i);
+    Inclination = linspace(-12,12,51);
+    SlipAngle = linspace(-20,20,51);
+    [Inclination, SlipAngle] = meshgrid( Inclination, SlipAngle );
+    
+    [Fx, Fy, ~, ~, ~] = ContactPatchLoads( Tire, ...
+        SlipAngle, SlipRatio, ...
+        NormalLoad, Pressure, Inclination, Velocity, ...
+        Idx, Model );
+    
+    [maxMu, maxMuInd] = max(Fy./NormalLoad, [], 'all');
+    [minMu, minMuInd] = min(Fy./NormalLoad, [], 'all');
+
+    % Plot the surface graph in a subplot but rotate to see Camber vs mu
+    subplot(2,3,i)
+    hold on
+    grid on
+    surf(Inclination,Fy./NormalLoad, SlipAngle )
+    view([0,90])
+    
+    % Create the colorbar instance
+    c = colorbar;
+    c.Label.String = 'Slip Angle (deg)';
+    c.Label.Interpreter = 'latex';
+    
+    xlabel( 'Inclination, $\gamma$ [$deg$]','Interpreter','latex' )
+    ylabel( 'Lateral Force Friction Coefficient [-]','Interpreter','latex' )
+    zlabel( 'Slip Angle (deg)' ,'Interpreter','latex' )
+    
+    ylim([-2.6, 2.6])
+    % title( {['$F_z$ = ' + string(NormalLoad) + ' N, $SR$ = ' + string(SlipRatio)]...
+    %         ['Maximum $\mu$ = ' + string(maxMu)'],...
+    %         ['Maxmimum $F_y$ = ' + string(maxMu .* NormalLoad) + ' N'], ...
+    %         ['Opt Camber = ' + string(Inclination(maxMuInd)) + '$^o$'], ...
+    %         ['Minimum $F_y$ = ' + string(minMu .* NormalLoad) + ' N'], ...
+    %         ['Worst Camber = ' + string(Inclination(minMuInd)) + '$^o$']}, ...
+    %         'Interpreter', 'latex');
+    title( {['$F_z$ = ' + string(NormalLoad) + ' N, $SR$ = ' + string(SlipRatio)]...
+            ['Maximum $\mu$ = ' + string(maxMu)'],...
+            ['Maxmimum $F_y$ = ' + string(maxMu .* NormalLoad) + ' N'], ...
+            ['Opt Camber = ' + string(Inclination(maxMuInd)) + '$^o$'] ...
+            },...
+            'Interpreter', 'latex');
+
+end
+
+
+
+%%% Coefficient of Friction
+Pressure    = 70;
+Inclination = 1;
+% Velocity    = 10;
+Velocity = 0;
+Idx         = 1;
+Model       = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
+
+SlipRatio = linspace(0, 1,51);
+SlipAngle = linspace(0,20,51);
+NormalLoad  = 0:100:2000;
+
+[~         , SlipRatio] = meshgrid( NormalLoad, SlipRatio );
+[NormalLoad, SlipAngle] = meshgrid( NormalLoad, SlipAngle );
+
+[Fx, Fy, ~,~,~] = ContactPatchLoads( Tire, ...
+    SlipAngle, SlipRatio, ...
+    NormalLoad, Pressure, Inclination, Velocity, ...
+    Idx, Model );
+
+muY = -Fy ./ NormalLoad;
+
+figure 
+hold on
+grid()
+surf(SlipAngle, NormalLoad, muY);
+view(3)
+xlabel("Slip Angle [deg]",'Interpreter','latex');
+ylabel("Normal Load [N]",'Interpreter','latex');
+zlabel("$\mu_y$ [-]",'Interpreter','latex');
+title("Coefficient of Friction in Y",'Interpreter','latex');
+
+Mat.NormalLoad = NormalLoad(find(NormalLoad == 700));
+Mat.SlipAngle = SlipAngle(find(NormalLoad == 700));
+Mat.muY = muY(find(NormalLoad == 700));
+
+figure
+hold on
+grid()
+plot(Mat.SlipAngle, Mat.muY)
+xlabel("Slip Angle [deg]",'Interpreter','latex');
+ylabel("$\mu_y$ [-]",'Interpreter','latex');
+title("Coefficient of Friction in Y at 700 N",'Interpreter','latex');
+
+
+muX = Fx ./ NormalLoad;
+
+figure 
+hold on
+grid()
+surf(SlipRatio, NormalLoad, muX);
+view(3)
+xlabel("Slip Ratio ([0-1])",'Interpreter','latex');
+ylabel("Normal Load $(F_z)$ [N]",'Interpreter','latex');
+zlabel("Coefficient of Friction $(\mu_x)$ [-]",'Interpreter','latex');
+title("Coefficient of Friction in X",'Interpreter','latex');
+
+Mat.NormalLoad = NormalLoad(find(NormalLoad == 700));
+Mat.SlipRatio = SlipRatio(find(NormalLoad == 700));
+Mat.muX = muX(find(NormalLoad == 700));
+
+figure
+hold on
+grid()
+plot(Mat.SlipRatio, Mat.muX)
+xlabel("Slip Ratio [0-1]",'Interpreter','latex');
+ylabel("$\mu_x$ [-]",'Interpreter','latex');
+title("Coefficient of Friction in X at 700 N",'Interpreter','latex');
+
 
 
 

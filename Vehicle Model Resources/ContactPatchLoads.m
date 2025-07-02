@@ -42,82 +42,82 @@ function [Fx, Fy, Mz, Mx, My] = ContactPatchLoads( Tire, ...
 %% Test Case
 if nargin == 0
     warning('Executing SlipEstimation() Test Case')
-    
+
     addpath( genpath( fileparts( which( 'ContactPatchLoads.m' ) ) ) );
     %load('Models\TestTire.mat'); %#ok<LOAD> missing Tire.Pacejka.p.P.Mx
     %load('Hoosier_R25B_18x75-10x7.mat');
     load('Hoosier_R25B_16x75-10x7.mat');
     %load('Tire.mat');
-    
+
     %%% Nominal Test Case Conditions
     Pressure    = 70;
     Inclination = 1;
     Velocity    = 10;
     Idx         = 1;
     Model       = struct( 'Pure', 'Pacejka', 'Combined', 'MNC' );
-    
+
     %%% Slip-Load Plots 
     SlipRatio = linspace(- 1, 1,51);
     SlipAngle = linspace(-20,20,51);
-    
+
     NormalLoad  = 0:100:2000;
-        
+
     [~         , SlipRatio] = meshgrid( NormalLoad, SlipRatio );
     [NormalLoad, SlipAngle] = meshgrid( NormalLoad, SlipAngle );
-    
+
     [Fx, Fy, Mz, Mx, My] = ContactPatchLoads( Tire, ...
         SlipAngle, SlipRatio, ...
         NormalLoad, Pressure, Inclination, Velocity, ...
         Idx, Model );
-     
+
     figure
     sgtitle( {'Slip-Load Surfaces', ...
         ['$P_{i} ='  , num2str(Pressure)   , '$ [$kPa$],' ...
           '$\gamma = ', num2str(Inclination), '$ [$deg$]']} ,'Interpreter','latex')
-      
+
     subplot(3,2,1)
     surf( SlipRatio, NormalLoad, Fx )
     xlabel( '$\kappa$ [ ]' ,'Interpreter','latex')
     ylabel( '$F_{z}$ [$N$]','Interpreter','latex' )
     zlabel( '$F_{x}$ [$N$]' ,'Interpreter','latex')
     title( 'Longitudinal Force' )
-    
+
     subplot(3,2,2)
     surf( SlipAngle, NormalLoad, Fy )
     xlabel( '$\alpha$ [$deg$]','Interpreter','latex' )
     ylabel( '$F_{z}$ [$N$]','Interpreter','latex' )
     zlabel( '$F_{y}$ [$N$]','Interpreter','latex' )
     title( 'Lateral Force' )
-    
+
     subplot(3,2,3)
     surf( SlipAngle, NormalLoad, Mz )
     xlabel( '$\alpha$ [$deg$]' ,'Interpreter','latex')
     ylabel( '$F_{z}$ [$N$]','Interpreter','latex' )
     zlabel( '$M_{z}$ [$Nm$]','Interpreter','latex' )
     title( 'Aligning Moment' )
-    
+
     subplot(3,2,4)
     surf( SlipAngle, NormalLoad, Mx )
     xlabel( '$\alpha$ [$deg$]' ,'Interpreter','latex')
     ylabel( '$F_{z}$ [$N$]' ,'Interpreter','latex')
     zlabel( '$M_{x}$ [$Nm$]','Interpreter','latex' )
     title( 'Overturning Moment' )
-    
+
     subplot(3,2,5)
     surf( SlipRatio, NormalLoad, My )
     xlabel( '$\kappa$ [ ]','Interpreter','latex' )
     ylabel( '$F_{z}$ [$N$]','Interpreter','latex' )
     zlabel( '$M_{y}$ [$Nm$]','Interpreter','latex' )
     title( 'Rolling Resistance' )
-      
+
     %%% Friction Ellipse Plotting
     SlipRatio = linspace(- 1, 1,51);
     SlipAngle = linspace(-20,20,51);
-    
+
     [SlipRatio, SlipAngle] = meshgrid( SlipRatio, SlipAngle );
-    
+
     NormalLoad = 700;
-    
+
     [Fx, Fy, ~, ~, ~] = ContactPatchLoads( Tire, ...
         SlipAngle, SlipRatio, ...
         NormalLoad, Pressure, Inclination, Velocity, ...
@@ -130,50 +130,50 @@ if nargin == 0
             ColorMap( round( (SlipAngle(i,1)-SlipAngle(1)) .* ...
                 (length(ColorMap)-1) ./ diff( SlipAngle([1 end]) )) + 1, : ) ); hold on;
     end
-    
+
     for j = 1 : size( SlipRatio, 2)
         plot( Fy(:,j), Fx(:,j), 'Color', ...
             ColorMap( round( (SlipRatio(1,j)-SlipRatio(1)) .* ...
                 (length(ColorMap)-1) ./ diff( SlipRatio([1 end]) )) + 1, : ) );
     end
-    
+
     xlabel( 'Lateral Force, $F_{y}$ [$N$]','Interpreter','latex' ); 
     ylabel( 'Longitudinal Force, $F_{x}$ [$N$]','Interpreter','latex' );
     title( 'Friction Ellipse' )
-    
+
     %%% Inclination Sensitivity
     Inclination = -3:0.05:3;
-    
+
     SlipRatio = linspace(- 1, 1,51);
     SlipAngle = linspace(-20,20,51);
-    
+
     [~          , SlipRatio] = meshgrid( Inclination, SlipRatio );
     [Inclination, SlipAngle] = meshgrid( Inclination, SlipAngle );
-    
+
     [Fx, Fy, ~, ~, ~] = ContactPatchLoads( Tire, ...
         SlipAngle, SlipRatio, ...
         NormalLoad, Pressure, Inclination, Velocity, ...
         Idx, Model );
-    
+
     figure
     plot( Inclination(1,:), max(abs(Fx),[],1)./max(abs(Fx),[],'all') ); hold on;
     plot( Inclination(1,:), max(abs(Fy),[],1)./max(abs(Fy),[],'all') )
-    
+
     xlabel( 'Inclination, $\gamma$ [$deg$]','Interpreter','latex' )
     ylabel( 'Normalized Grip' )
     title( 'Inclination Sensitivity')
     legend( '$F_{x}$', '$F_{y}$','Interpreter','latex' )
-    
+
     %%% Single Evaluation
     Inclination = 1;
     SlipAngle = 5;
     SlipRatio = 0.03;
-    
+
     [Fx, Fy, Mz, Mx, My] = ContactPatchLoads( Tire, ...
         SlipAngle, SlipRatio, ...
         NormalLoad, Pressure, Inclination, Velocity, ...
         Idx, Model );
-    
+
     return;
 end
 
